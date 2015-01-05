@@ -1,7 +1,17 @@
 EmbeddedHttpServer
 ==================
 
-Simple HTTP server within just one JAR file
+Simple HTTP server written in Java and packaged within just one JAR file.
+
+Features
+--------
+
+- Multiple parallel connections
+- Persistent connections
+- Range requests
+- Directory indexes
+- Basic access authentication
+- Support for If-Modified-Since requests
 
 Basic Usage
 -----------
