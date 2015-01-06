@@ -30,3 +30,20 @@ As you might expect, stopping the server is:
 ```java
 httpServer.stopServer();
 ```
+
+Configuration
+-------------
+
+The snippet below shows an example using all of the available configuration options.
+
+```java
+HttpServer httpServer = new HttpServer.Builder()
+	.setPageRoot("/tmp")
+	.setPortNumber(10001)
+	.setMaxParallelConnections(10)
+	.setAllowDirectoryIndexes(true)
+	.setBasicAccessAuthentication(new BasicAccessAuthentication("realm", "username", "password"))
+	.addWelcomeFile("index.html")
+	.addContentType("mp4", "video/mp4")
+	.build();
+``
