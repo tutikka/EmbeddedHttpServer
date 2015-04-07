@@ -2,3 +2,6 @@
 .project
 .settings
 bin
+EmbeddedHttpServer.iml
+.idea
+*.class
