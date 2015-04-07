@@ -12,6 +12,7 @@ Features
 - Directory indexes
 - Basic access authentication
 - Support for If-Modified-Since requests
+- Support for tiny url style path translations
 
 Basic Usage
 -----------
@@ -95,3 +96,14 @@ Exiting the shell:
 ```
 quit
 ```
+
+Tiny URLs
+---------
+
+It is possible to define short aliases for longer urls, for example:
+
+```
+httpServer.addTinyPath("/abc", "/some/other/longer/path/awesome.html");
+```
+
+This makes the server translate the request path before other processing, so it is not a redirect for example. Note also that the tiny path is a key in a map, so adding one that already exists effectively overwrites the previous.
