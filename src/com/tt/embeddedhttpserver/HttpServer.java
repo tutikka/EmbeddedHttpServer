@@ -23,7 +23,9 @@ public class HttpServer {
 	private Set<String> welcomeFiles;
 
 	private BasicAccessAuthentication basicAccessAuthentication;
-	
+
+	private Map<String, String> tinyPaths;
+
 	public static class Builder {
 		
 		private String pageRoot = "/tmp";
@@ -39,7 +41,9 @@ public class HttpServer {
 		private Set<String> welcomeFiles = new HashSet<String>();
 		
 		private BasicAccessAuthentication basicAccessAuthentication = null;
-		
+
+		private Map<String, String> tinyPaths = new HashMap<String, String>();
+
 		public Builder() {
 			// default mime types: web
 			contentTypes.put("html", "text/html");
@@ -120,19 +124,29 @@ public class HttpServer {
 			this.welcomeFiles = welcomeFiles;
 			return (this);
 		}
-		
+
 		public Builder setBasicAccessAuthentication(BasicAccessAuthentication basicAccessAuthentication) {
 			this.basicAccessAuthentication = basicAccessAuthentication;
 			return (this);
 		}
-		
+
+		public Builder setTinyPaths(Map<String, String> tinyPaths) {
+			this.tinyPaths = tinyPaths;
+			return (this);
+		}
+
+		public Builder addTinyPath(String tinyPath, String fullPath) {
+			this.tinyPaths.put(tinyPath, fullPath);
+			return (this);
+		}
+
 		public HttpServer build() {
-			return (new HttpServer(pageRoot, portNumber, maxParallelConnections, allowDirectoryIndexes, contentTypes, welcomeFiles, basicAccessAuthentication));
+			return (new HttpServer(pageRoot, portNumber, maxParallelConnections, allowDirectoryIndexes, contentTypes, welcomeFiles, basicAccessAuthentication, tinyPaths));
 		}
 		
 	}
 	
-	private HttpServer(String pageRoot, int portNumber, int maxParallelConnections, boolean allowDirectoryIndexes, Map<String, String> contentTypes, Set<String> welcomeFiles, BasicAccessAuthentication basicAccessAuthentication) {
+	private HttpServer(String pageRoot, int portNumber, int maxParallelConnections, boolean allowDirectoryIndexes, Map<String, String> contentTypes, Set<String> welcomeFiles, BasicAccessAuthentication basicAccessAuthentication, Map<String, String> tinyPaths) {
 		this.pageRoot = pageRoot;
 		this.portNumber = portNumber;
 		this.maxParallelConnections = maxParallelConnections;
@@ -140,6 +154,7 @@ public class HttpServer {
 		this.contentTypes = contentTypes;
 		this.welcomeFiles = welcomeFiles;
 		this.basicAccessAuthentication = basicAccessAuthentication;
+		this.tinyPaths = tinyPaths;
 		Logger.i("config: pageRoot = " + pageRoot);
 		Logger.i("config: portNumber = " + portNumber);
 		Logger.i("config: maxParallelConnections = " + maxParallelConnections);
@@ -147,6 +162,7 @@ public class HttpServer {
 		Logger.i("config: contentTypes = " + contentTypes);
 		Logger.i("config: welcomeFiles = " + welcomeFiles);
 		Logger.i("config: basicAccessAuthentication = " + basicAccessAuthentication);
+		Logger.i("config: tinyPaths = " + tinyPaths);
 	}
 
 	public String getPageRoot() {
@@ -180,12 +196,40 @@ public class HttpServer {
 	public void startServer() {
 		ServerThread.getInstance().requestStart(this);
 	}
-	
-	
+
 	public void stopServer() {
 		ServerThread.getInstance().requestStop();
 	}
-	
+
+	public void addTinyPath(String tinyPath, String fullPath) {
+		if (tinyPath == null || tinyPath.length() == 0) {
+			Logger.w("error setting tiny path: null or empty tiny path", null);
+			return;
+		}
+		if (!tinyPath.startsWith("/")) {
+			tinyPath = "/" + tinyPath;
+			Logger.i("prepended '/' to tiny path");
+		}
+		if (fullPath == null || fullPath.length() == 0) {
+			Logger.w("error setting tiny path: null or empty full path", null);
+			return;
+		}
+		if (!fullPath.startsWith("/")) {
+			fullPath = "/" + fullPath;
+			Logger.i("prepended '/' to full path");
+		}
+		tinyPaths.put(tinyPath, fullPath);
+		Logger.i("set tiny url " + tinyPath + " -> " + fullPath);
+	}
+
+	public void removeTinyPath(String tinyPath) {
+		Logger.i("remove tiny url " + tinyPath);
+	}
+
+	public Map<String, String> getTinyPaths() {
+		return (tinyPaths);
+	}
+
 	public static void printHelp() {
 		System.out.println("-----------------------------");
 		System.out.println("| Embedded Http Server Shell |");
@@ -201,14 +245,20 @@ public class HttpServer {
 		printHelp();
 		HttpServer httpServer = new HttpServer.Builder()
 			.setPageRoot("/tmp")
+			.setPortNumber(10001)
+			.setMaxParallelConnections(10)
 			.setAllowDirectoryIndexes(true)
 			.setBasicAccessAuthentication(new BasicAccessAuthentication("realm", "username", "password"))
+			.addWelcomeFile("index.html")
+			.addContentType("mp4", "video/mp4")
+			.addTinyPath("/abc", "/some/very/long/path/test.html")
 			.build();
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		while (true) {
 			String line = in.readLine();
 			if ("start".equals(line)) {
 				httpServer.startServer();
+				httpServer.addTinyPath("abc", "index.html");
 			}
 			if ("stop".equals(line)) {
 				httpServer.stopServer();

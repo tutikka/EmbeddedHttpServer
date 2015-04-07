@@ -55,7 +55,15 @@ public class ClientThread implements Runnable {
 					return;
 				}
 			}
-			
+
+			// tiny path
+			String tinyPath = head.getRequestPath();
+			String fullPath = httpServer.getTinyPaths().get(tinyPath);
+			if (fullPath != null) {
+				head.setRequestPath(fullPath);
+				Logger.i("translated tiny path " + tinyPath + " to full path " + fullPath, id);
+			}
+
 			// request connection close
 			closeConnection = head.closeConnection();
 			Logger.i("client requested to close connection: " + closeConnection, id);
