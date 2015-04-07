@@ -1,10 +1,6 @@
 package com.tt.embeddedhttpserver;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -73,7 +69,7 @@ public class HttpIO {
 	}
 	
 	public static void writeResponseContent(File file, OutputStream out) throws Exception {
-		FileChannel fc = FileChannel.open(file.toPath(), StandardOpenOption.READ);
+		FileChannel fc = new FileInputStream(file).getChannel();
 		ByteBuffer buffer = ByteBuffer.allocate(32 * 1024);
 		WritableByteChannel wbc = Channels.newChannel(out);
 		while (fc.read(buffer) != -1) {
@@ -85,7 +81,7 @@ public class HttpIO {
 	}
 	
 	public static void writeResponseContent(File file, OutputStream out, long start, long end) throws Exception {
-		FileChannel fc = FileChannel.open(file.toPath(), StandardOpenOption.READ);
+		FileChannel fc = new FileInputStream(file).getChannel();
 		ByteBuffer buffer = fc.map(FileChannel.MapMode.READ_ONLY, start, end - start + 1);
 		WritableByteChannel wbc = Channels.newChannel(out);
 		wbc.write(buffer);

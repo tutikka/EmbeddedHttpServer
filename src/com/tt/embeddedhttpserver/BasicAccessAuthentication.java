@@ -1,6 +1,6 @@
 package com.tt.embeddedhttpserver;
 
-import javax.xml.bind.DatatypeConverter;
+import java.util.Base64;
 
 public class BasicAccessAuthentication {
 
@@ -32,9 +32,8 @@ public class BasicAccessAuthentication {
 		} else {
 			String server = "Basic ";
 			try {
-				server += DatatypeConverter.printBase64Binary((username + ":" + password).getBytes("UTF-8"));
+				server += Base64.getEncoder().encodeToString((username + ":" + password).getBytes("UTF-8"));
 			} catch (Exception e) {
-				
 			}
 			if (authorization.equals(server)) {
 				return (BasicAccessAuthentication.AUTHENTICATION_OK);
