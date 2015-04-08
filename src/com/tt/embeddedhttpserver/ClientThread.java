@@ -56,12 +56,18 @@ public class ClientThread implements Runnable {
 				}
 			}
 
-			// tiny path
-			String tinyPath = head.getRequestPath();
-			String fullPath = httpServer.getTinyPaths().get(tinyPath);
-			if (fullPath != null) {
-				head.setRequestPath(fullPath);
-				Logger.i("translated tiny path " + tinyPath + " to full path " + fullPath, id);
+			// alias
+			String alias = head.getRequestPath();
+			String path = httpServer.getAliases().get(alias);
+			if (path == null) {
+				if (httpServer.isAllowOnlyAliases()) {
+					Logger.w("server allows only aliases (and alias " + alias + " was not found)", id, null);
+					HttpIO.writeResponseHead(HttpHead.Factory.handle404(closeConnection), out);
+					return;
+				}
+			} else {
+				head.setRequestPath(path);
+				Logger.i("translated alias " + alias + " to full path " + path, id);
 			}
 
 			// request connection close

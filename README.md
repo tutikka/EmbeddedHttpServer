@@ -12,7 +12,7 @@ Features
 - Directory indexes
 - Basic access authentication
 - Support for If-Modified-Since requests
-- Support for tiny url style path translations
+- Support for tiny url style path aliases
 
 Basic Usage
 -----------
@@ -103,7 +103,15 @@ Tiny URLs
 It is possible to define short aliases for longer urls, for example:
 
 ```
-httpServer.addTinyPath("/abc", "/some/other/longer/path/awesome.html");
+httpServer.addAlias("/abc", "/some/other/longer/path/awesome.html");
 ```
 
-This makes the server translate the request path before other processing, so it is not a redirect for example. Note also that the tiny path is a key in a map, so adding one that already exists effectively overwrites the previous.
+This makes the server translate the request path before other processing, so it is not a redirect for example. Note also that the alias is a key in a map, so adding one that already exists effectively overwrites the previous.
+
+You can also choose to allow only aliases to be processed:
+
+```
+httpServer.setAllowOnlyAliases(true);
+```
+
+Now, if the alias is not found, a ``HTTP 404`` will be returned.

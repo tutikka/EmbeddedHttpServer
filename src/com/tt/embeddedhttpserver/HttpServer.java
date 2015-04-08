@@ -24,7 +24,9 @@ public class HttpServer {
 
 	private BasicAccessAuthentication basicAccessAuthentication;
 
-	private Map<String, String> tinyPaths;
+	private Map<String, String> aliases;
+
+	private boolean allowOnlyAliases;
 
 	public static class Builder {
 		
@@ -42,7 +44,9 @@ public class HttpServer {
 		
 		private BasicAccessAuthentication basicAccessAuthentication = null;
 
-		private Map<String, String> tinyPaths = new HashMap<String, String>();
+		private Map<String, String> aliases = new HashMap<String, String>();
+
+		private boolean allowOnlyAliases = false;
 
 		public Builder() {
 			// default mime types: web
@@ -130,23 +134,28 @@ public class HttpServer {
 			return (this);
 		}
 
-		public Builder setTinyPaths(Map<String, String> tinyPaths) {
-			this.tinyPaths = tinyPaths;
+		public Builder setAliases(Map<String, String> aliases) {
+			this.aliases = aliases;
 			return (this);
 		}
 
-		public Builder addTinyPath(String tinyPath, String fullPath) {
-			this.tinyPaths.put(tinyPath, fullPath);
+		public Builder addAlias(String tinyPath, String fullPath) {
+			this.aliases.put(tinyPath, fullPath);
+			return (this);
+		}
+
+		public Builder setAllowOnlyAliases(boolean allowOnlyAliases) {
+			this.allowOnlyAliases = allowOnlyAliases;
 			return (this);
 		}
 
 		public HttpServer build() {
-			return (new HttpServer(pageRoot, portNumber, maxParallelConnections, allowDirectoryIndexes, contentTypes, welcomeFiles, basicAccessAuthentication, tinyPaths));
+			return (new HttpServer(pageRoot, portNumber, maxParallelConnections, allowDirectoryIndexes, contentTypes, welcomeFiles, basicAccessAuthentication, aliases, allowOnlyAliases));
 		}
 		
 	}
 	
-	private HttpServer(String pageRoot, int portNumber, int maxParallelConnections, boolean allowDirectoryIndexes, Map<String, String> contentTypes, Set<String> welcomeFiles, BasicAccessAuthentication basicAccessAuthentication, Map<String, String> tinyPaths) {
+	private HttpServer(String pageRoot, int portNumber, int maxParallelConnections, boolean allowDirectoryIndexes, Map<String, String> contentTypes, Set<String> welcomeFiles, BasicAccessAuthentication basicAccessAuthentication, Map<String, String> aliases, boolean allowOnlyAliases) {
 		this.pageRoot = pageRoot;
 		this.portNumber = portNumber;
 		this.maxParallelConnections = maxParallelConnections;
@@ -154,7 +163,8 @@ public class HttpServer {
 		this.contentTypes = contentTypes;
 		this.welcomeFiles = welcomeFiles;
 		this.basicAccessAuthentication = basicAccessAuthentication;
-		this.tinyPaths = tinyPaths;
+		this.aliases = aliases;
+		this.allowOnlyAliases = allowOnlyAliases;
 		Logger.i("config: pageRoot = " + pageRoot);
 		Logger.i("config: portNumber = " + portNumber);
 		Logger.i("config: maxParallelConnections = " + maxParallelConnections);
@@ -162,7 +172,8 @@ public class HttpServer {
 		Logger.i("config: contentTypes = " + contentTypes);
 		Logger.i("config: welcomeFiles = " + welcomeFiles);
 		Logger.i("config: basicAccessAuthentication = " + basicAccessAuthentication);
-		Logger.i("config: tinyPaths = " + tinyPaths);
+		Logger.i("config: aliases = " + aliases);
+		Logger.i("config: allowOnlyAliases = " + allowOnlyAliases);
 	}
 
 	public String getPageRoot() {
@@ -201,33 +212,38 @@ public class HttpServer {
 		ServerThread.getInstance().requestStop();
 	}
 
-	public void addTinyPath(String tinyPath, String fullPath) {
-		if (tinyPath == null || tinyPath.length() == 0) {
-			Logger.w("error setting tiny path: null or empty tiny path", null);
+	public boolean isAllowOnlyAliases() {
+		return allowOnlyAliases;
+	}
+
+	public void addAliases(String alias, String path) {
+		if (alias == null || alias.length() == 0) {
+			Logger.w("error setting alias: null or empty alias", null);
 			return;
 		}
-		if (!tinyPath.startsWith("/")) {
-			tinyPath = "/" + tinyPath;
-			Logger.i("prepended '/' to tiny path");
+		if (!alias.startsWith("/")) {
+			alias = "/" + alias;
+			Logger.i("prepended '/' to alias");
 		}
-		if (fullPath == null || fullPath.length() == 0) {
-			Logger.w("error setting tiny path: null or empty full path", null);
+		if (path == null || path.length() == 0) {
+			Logger.w("error setting alias: null or empty full path", null);
 			return;
 		}
-		if (!fullPath.startsWith("/")) {
-			fullPath = "/" + fullPath;
+		if (!path.startsWith("/")) {
+			path = "/" + path;
 			Logger.i("prepended '/' to full path");
 		}
-		tinyPaths.put(tinyPath, fullPath);
-		Logger.i("set tiny url " + tinyPath + " -> " + fullPath);
+		aliases.put(alias, path);
+		Logger.i("set alias " + alias + " -> " + path);
 	}
 
-	public void removeTinyPath(String tinyPath) {
-		Logger.i("remove tiny url " + tinyPath);
+	public void removeAlias(String alias) {
+		aliases.remove(alias);
+		Logger.i("remove alias " + alias);
 	}
 
-	public Map<String, String> getTinyPaths() {
-		return (tinyPaths);
+	public Map<String, String> getAliases() {
+		return (aliases);
 	}
 
 	public static void printHelp() {
@@ -251,14 +267,14 @@ public class HttpServer {
 			.setBasicAccessAuthentication(new BasicAccessAuthentication("realm", "username", "password"))
 			.addWelcomeFile("index.html")
 			.addContentType("mp4", "video/mp4")
-			.addTinyPath("/abc", "/some/very/long/path/test.html")
+			.addAlias("/abc", "/index.html")
+			.setAllowOnlyAliases(true)
 			.build();
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		while (true) {
 			String line = in.readLine();
 			if ("start".equals(line)) {
 				httpServer.startServer();
-				httpServer.addTinyPath("abc", "index.html");
 			}
 			if ("stop".equals(line)) {
 				httpServer.stopServer();
