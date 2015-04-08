@@ -139,8 +139,8 @@ public class HttpServer {
 			return (this);
 		}
 
-		public Builder addAlias(String tinyPath, String fullPath) {
-			this.aliases.put(tinyPath, fullPath);
+		public Builder addAlias(String alias, String path) {
+			this.aliases.put(alias, path);
 			return (this);
 		}
 
@@ -216,7 +216,7 @@ public class HttpServer {
 		return allowOnlyAliases;
 	}
 
-	public void addAliases(String alias, String path) {
+	public void addAlias(String alias, String path) {
 		if (alias == null || alias.length() == 0) {
 			Logger.w("error setting alias: null or empty alias", null);
 			return;
