@@ -46,6 +46,8 @@ HttpServer httpServer = new HttpServer.Builder()
 	.setBasicAccessAuthentication(new BasicAccessAuthentication("realm", "username", "password"))
 	.addWelcomeFile("index.html")
 	.addContentType("mp4", "video/mp4")
+	.addAlias("/abc", "/index.html")
+	.setAllowOnlyAliases(true)
 	.build();
 ```
 
@@ -66,13 +68,15 @@ $ java -cp embedded-http-server-0.0.1.jar com/tt/embeddedhttpserver/HttpServer
 | help  |    Print this help |
 | quit  |         Exit shell |
 ------------------------------
-[INFO   ] 06.01.15 09:11:37 config: pageRoot = /tmp
-[INFO   ] 06.01.15 09:11:37 config: portNumber = 10001
-[INFO   ] 06.01.15 09:11:37 config: maxParallelConnections = 10
-[INFO   ] 06.01.15 09:11:37 config: allowDirectoryIndexes = false
-[INFO   ] 06.01.15 09:11:37 config: contentTypes = {css=text/css, log=text/plain, gif=image/gif, js=text/javascript, mid=audio/mid, eot=application/vnd.ms-fontobject, ico=image/x-icon, mov=video/quicktime, xml=text/xml, jpeg=image/jpeg, html=text/html, htm=text/html, otf=application/x-font-opentype, jpg=image/jpeg, qt=video/quicktime, svg=image/svg+xml, mpg=video/mpeg, ttf=application/x-font-ttf, png=image/png, wav=audio/x-wav, woff=application/font-woff, mp4=video/mp4, txt=text/plain, mp3=audio/mpeg, mpeg=video/mpeg}
-[INFO   ] 06.01.15 09:11:37 config: welcomeFiles = [index.html, index.htm]
-[INFO   ] 06.01.15 09:11:37 config: basicAccessAuthentication = null
+[INFO   ] 08.04.15 20:16:18 config: pageRoot = /tmp
+[INFO   ] 08.04.15 20:16:18 config: portNumber = 10001
+[INFO   ] 08.04.15 20:16:18 config: maxParallelConnections = 10
+[INFO   ] 08.04.15 20:16:18 config: allowDirectoryIndexes = true
+[INFO   ] 08.04.15 20:16:18 config: contentTypes = {css=text/css, log=text/plain, gif=image/gif, js=text/javascript, mid=audio/mid, eot=application/vnd.ms-fontobject, ico=image/x-icon, mov=video/quicktime, xml=text/xml, jpeg=image/jpeg, html=text/html, htm=text/html, otf=application/x-font-opentype, jpg=image/jpeg, qt=video/quicktime, svg=image/svg+xml, mpg=video/mpeg, ttf=application/x-font-ttf, png=image/png, wav=audio/x-wav, woff=application/font-woff, mp4=video/mp4, txt=text/plain, mp3=audio/mpeg, mpeg=video/mpeg}
+[INFO   ] 08.04.15 20:16:18 config: welcomeFiles = [index.html, index.htm]
+[INFO   ] 08.04.15 20:16:18 config: basicAccessAuthentication = { realm = realm, username = username, password = ** }
+[INFO   ] 08.04.15 20:16:18 config: aliases = {/abc=/index.html}
+[INFO   ] 08.04.15 20:16:18 config: allowOnlyAliases = true
 ```
 
 Starting the server:
